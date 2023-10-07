@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=projeto-1
+    ports:
+      - "5432:5432"
+    volumes:
+      - data:/var/lib/postgresql/data
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - /mnt/mongodb-init/init.js:/docker-entrypointdb.d/init.js:ro
+
+  python_app:
+    build:
+      context: ./python_etl
+      dockerfile: Dockerfile
+    volumes: 
+      - ./input:/input
+    #defina as propriedades do seu servidor python 
+    depends_on:
+      - postgres
+      - mongodb
+volumes:
+  data:
+networks:
+#defina sua rede
+  default:
+    driver: bridge
